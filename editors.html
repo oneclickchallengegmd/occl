@@ -1,1 +1,123 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Creator panel — OCCL</title><link rel="stylesheet" href="style.css"></head><body><header><a class="brand" href="index.html">OCCL</a><nav><a href="index.html">Challenges</a><a href="records.html">Records</a><a href="submit-record.html">Submit record</a><a href="submit-level.html">Suggest level</a><a href="editors.html">Creator panel</a></nav></header><main class="wrap"><h1>Creator panel</h1><p class="muted">Sign in with the creator account to review pending submissions.</p><form id="login" class="fields"><div class="field full"><label>Email</label><input id="email" type="email" required></div><div class="field full"><label>Password</label><input id="password" type="password" required></div><div class="field full"><button class="btn">Sign in</button><p id="msg" class="muted small"></p></div></form><button id="logout" class="btn secondary" hidden>Sign out</button><section id="queues" hidden><h2>Record submissions</h2><div id="rq" class="grid"></div><h2>Level suggestions</h2><div id="lq" class="grid"></div></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script src="supabase.js"></script><script>const $=s=>document.querySelector(s);function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}$("#login").onsubmit=async e=>{e.preventDefault();try{if(!occlClient)throw Error("Configure Supabase first.");let {error}=await occlClient.auth.signInWithPassword({email:$("#email").value,password:$("#password").value});if(error)throw error;$("#msg").textContent="Signed in.";await session()}catch(x){$("#msg").textContent=x.message}};$("#logout").onclick=async()=>{await occlClient.auth.signOut();location.reload()};async function session(){if(!occlClient)return;let {data}=await occlClient.auth.getSession(),ok=!!data.session;$("#queues").hidden=!ok;$("#login").hidden=ok;$("#logout").hidden=!ok;if(ok){load("record_submissions","#rq","record");load("level_submissions","#lq","level")}}async function load(table,sel,type){let el=$(sel);try{let {data,error}=await occlClient.from(table).select("*").eq("status","pending").order("created_at");if(error)throw error;el.innerHTML=data.length?data.map(r=>{let title=type==="record"?`${r.player_name} — ${r.level_name} (${r.progress}%)`:`${r.level_name} (ID ${r.level_id})`;return `<article class="card"><h3>${esc(title)}</h3><p><a href="${esc(r.video_url)}" target="_blank" rel="noopener">Open proof</a></p><p class="muted">${esc(r.notes||"")}</p><button class="btn" data-id="${r.id}" data-status="approved">Approve</button> <button class="btn secondary" data-id="${r.id}" data-status="rejected">Reject</button></article>`}).join(""):'<div class="empty">No pending submissions.</div>';el.querySelectorAll("button[data-id]").forEach(b=>b.onclick=async()=>{b.disabled=true;let {error}=await occlClient.from(table).update({status:b.dataset.status}).eq("id",b.dataset.id);if(error){alert(error.message);b.disabled=false}else load(table,sel,type)})}catch(x){el.innerHTML='<div class="empty">'+esc(x.message)+'</div>'}}if(occlClient){occlClient.auth.onAuthStateChange(()=>session());session()}</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Creator Panel — OCCL</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+<a class="brand" href="index.html">OCCL</a>
+<nav>
+<a href="index.html">Challenges</a>
+<a href="records.html">Records</a>
+<a href="submit-record.html">Submit record</a>
+<a href="submit-level.html">Suggest level</a>
+<a href="editors.html">Creator panel</a>
+</nav>
+</header>
+<main class="wrap">
+<h1>Creator panel</h1>
+<p class="muted">Sign in with your creator account.</p>
+<form id="login" class="fields">
+<div class="field full">
+<label>Email</label>
+<input id="email" type="email" required>
+</div>
+<div class="field full">
+<label>Password</label>
+<input id="password" type="password" required>
+</div>
+<div class="field full">
+<button class="btn">Sign in</button>
+<p id="msg" class="muted small"></p>
+</div>
+</form>
+<button id="logout" class="btn secondary" hidden>Sign out</button>
+<section id="queues" hidden>
+<h2>Debug information</h2>
+<pre id="debug" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>
+<h2>Record submissions</h2>
+<div id="rq" class="grid"></div>
+<h2>Level suggestions</h2>
+<div id="lq" class="grid"></div>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="supabase.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+$("#login").onsubmit=async e=>{
+e.preventDefault();
+try{
+if(!window.occlClient)throw Error("Supabase client is not configured.");
+const {error}=await occlClient.auth.signInWithPassword({
+email:$("#email").value.trim(),
+password:$("#password").value
+});
+if(error)throw error;
+$("#msg").textContent="Signed in.";
+await session();
+}catch(x){$("#msg").textContent=x.message;}
+};
+$("#logout").onclick=async()=>{
+await occlClient.auth.signOut();
+location.reload();
+};
+async function load(table,sel,type){
+const el=$(sel);
+try{
+const {data,error}=await occlClient.from(table)
+.select("*").eq("status","pending").order("created_at");
+if(error)throw error;
+$("#debug").textContent += "\n"+table+": "+data.length+" pending row(s)";
+el.innerHTML=data.length?data.map(r=>{
+const title=type==="record"
+?`${r.player_name||"Unknown player"} — ${r.level_name||r.challenge_name||"Unknown level"} (${r.progress??r.completion_percent??"?"}%)`
+:`${r.level_name||r.challenge_name||"Unknown level"} (ID ${r.level_id||r.challenge_id||"?"})`;
+return `<article class="card">
+<h3>${esc(title)}</h3>
+<p><a href="${esc(r.video_url||r.proof_url||"#")}" target="_blank" rel="noopener">Open proof</a></p>
+<p class="muted">${esc(r.notes||"")}</p>
+<button class="btn" data-id="${esc(r.id)}" data-status="approved">Approve</button>
+<button class="btn secondary" data-id="${esc(r.id)}" data-status="rejected">Reject</button>
+</article>`;
+}).join(""):'<div class="empty">No pending submissions.</div>';
+el.querySelectorAll("button[data-id]").forEach(b=>b.onclick=async()=>{
+b.disabled=true;
+const {error}=await occlClient.from(table)
+.update({status:b.dataset.status}).eq("id",b.dataset.id);
+if(error){alert(error.message);b.disabled=false;}
+else await session();
+});
+}catch(x){
+$("#debug").textContent+="\n"+table+" ERROR: "+x.message;
+el.innerHTML='<div class="empty">'+esc(x.message)+'</div>';
+}
+}
+async function session(){
+if(!window.occlClient){$("#msg").textContent="Supabase is not configured.";return;}
+const {data,error}=await occlClient.auth.getSession();
+if(error){$("#msg").textContent=error.message;return;}
+const user=data.session?.user;
+const ok=!!user;
+$("#queues").hidden=!ok;
+$("#login").hidden=ok;
+$("#logout").hidden=!ok;
+if(!ok)return;
+$("#debug").textContent="Signed in: "+(user.email||"(email unavailable)")+"\nUser ID: "+user.id;
+const {data:creatorData,error:creatorError}=await occlClient.rpc("occl_is_creator");
+$("#debug").textContent+="\nCreator check: "+(creatorError?"ERROR: "+creatorError.message:JSON.stringify(creatorData));
+await load("record_submissions","#rq","record");
+await load("level_submissions","#lq","level");
+}
+if(window.occlClient){
+occlClient.auth.onAuthStateChange(()=>session());
+session();
+}
+</script>
+</body>
+</html>
