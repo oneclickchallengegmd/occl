@@ -1,0 +1,1 @@
+(function(){if(!window.supabase||!window.OCCL_SUPABASE_URL||!window.OCCL_SUPABASE_KEY||window.OCCL_SUPABASE_URL.includes("PASTE_")||window.OCCL_SUPABASE_KEY.includes("PASTE_")){window.occlClient=null;return;}window.occlClient=window.supabase.createClient(window.OCCL_SUPABASE_URL,window.OCCL_SUPABASE_KEY);})();
