@@ -1,14 +1,20 @@
 # OCCL — One Click Challenge List
 
 ## Files
-- `index.html` — main list page. Framy and Huh have their level IDs, SpikeGmd as publisher, and the supplied YouTube links.
-- `records.html` — public approved-records page.
-- `submit-record.html` — record submission form preview.
-- `submit-level.html` — suggest-a-level form preview.
-- `editors.html` — creator panel layout preview.
+- `index.html` — public challenge list (exactly five challenges).
+- `records.html` — public records page.
+- `submit-record.html` — record submission form.
+- `submit-level.html` — level suggestion form.
+- `editors.html` — creator panel layout.
 
-## Important functionality note
-This is a static GitHub Pages website. The record and level forms currently only show a preview message; they do not send or save submissions. The creator panel is not a secure login and approval buttons are intentionally disabled. To make submissions persistent and ensure only the creator can approve/reject them, connect a backend/database and real authentication with server-side access rules. Do not rely on hiding a page or secret URL for security.
+## Final challenge list
+1. Wowzers — ID `151377943`
+2. Giga Chad — ID `151378021`
+3. Framy — ID `151375701`
+4. Free OCCL Points — ID `151378082`
+5. Huh — ID `151376807`
 
-## Publish updates
-Upload/replace these files in the root of your existing `occl` GitHub repository. GitHub Pages will redeploy automatically after the commit.
+Publisher, verifier, and creator: **SpikeGmd**.
+
+## Important deployment note
+This is a static GitHub Pages website. The pages and forms are built, but form submissions, public record persistence, and secure creator-only approval are **not live yet** because no backend/database/authentication service has been connected. Do not treat the creator panel as secure until real authentication and server-side database rules are configured. GitHub Pages cannot itself receive and securely approve submissions.
