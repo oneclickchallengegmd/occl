@@ -1,19 +1,14 @@
 # OCCL — One Click Challenge List
 
-Mobile-friendly starter website inspired by the supplied reference.
+## Files
+- `index.html` — main list page. Framy and Huh have their level IDs, SpikeGmd as publisher, and the supplied YouTube links.
+- `records.html` — public approved-records page.
+- `submit-record.html` — record submission form preview.
+- `submit-level.html` — suggest-a-level form preview.
+- `editors.html` — creator panel layout preview.
 
-- The level ID is hidden until a challenge is selected from the sidebar.
-- #1 Framy — ID 151375701.
-- #2 Huh — ID 151376807.
-- List Editors contains only SpikeGmd.
-- Includes search, dark mode, leaderboard placeholder, roulette and a demo record form.
+## Important functionality note
+This is a static GitHub Pages website. The record and level forms currently only show a preview message; they do not send or save submissions. The creator panel is not a secure login and approval buttons are intentionally disabled. To make submissions persistent and ensure only the creator can approve/reject them, connect a backend/database and real authentication with server-side access rules. Do not rely on hiding a page or secret URL for security.
 
-## Publish with GitHub Pages on mobile
-1. Go to https://github.com and create a repository (for example, `occl`).
-2. In the repository choose **Add file → Upload files** and upload `index.html`.
-3. Commit the file to the `main` branch.
-4. Open **Settings → Pages**.
-5. Choose **Deploy from a branch**, branch `main`, folder `/ (root)`, then Save.
-6. Wait for GitHub Pages to publish the website; the URL appears in the Pages settings.
-
-The record form is only a front-end demo; it does not permanently save submissions yet. Challenges #3 onward are placeholders.
+## Publish updates
+Upload/replace these files in the root of your existing `occl` GitHub repository. GitHub Pages will redeploy automatically after the commit.
